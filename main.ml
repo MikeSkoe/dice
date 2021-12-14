@@ -1,4 +1,10 @@
-module Side = struct
+module type T = sig
+    type t
+
+    val empty: t
+end
+
+module Dice = struct
       type t = Red | Blue | Green | Yellow
 
       let length = 4
@@ -9,6 +15,14 @@ module Side = struct
             | Blue -> Green
             | Green -> Yellow
             | Yellow -> Red
+
+      let shuffle t =
+            let random_shift = Random.(int length) in
+            let rec get_side side = function
+                  | 0 -> side
+                  | num -> get_side (incr side) (num -1)
+            in
+            get_side t random_shift
 
       let int_of = function
             | Red -> 0
@@ -22,44 +36,70 @@ module Side = struct
             b - a
 end
 
-module Dice = struct
-      type t = Fixed of Side.t | Open of Side.t
-
-      let empty = Open Side.empty
+module Fixable = struct
+      type 'a t = Fixed of 'a | Open of 'a
 
       let toggle = function
-            | Open side -> Fixed side
-            | Fixed side -> Open side
+            | Open a -> Fixed a
+            | Fixed a -> Open a
 
-      let shuffle = function
-            | Open side ->
-                  let rec get_side side = function
-                        | 0 -> side
-                        | num -> get_side Side.(incr side) (num - 1) in
+      let update fn = function
+            | Open a -> Open (fn a)
+            | Fixed a -> Fixed a
 
-                  Open (get_side side Random.(int Side.length))
-            | Fixed side -> Fixed side
+      let extract = function 
+            | Open a
+            | Fixed a -> a
 end
 
 module Hand = struct
-      type t = Dice.t list
+      type t = Dice.t Fixable.t list
 
-      let empty = Dice.[empty; empty; empty; empty; empty]
+      let empty = Fixable.[
+          Open Dice.empty;
+          Open Dice.empty;
+          Open Dice.empty;
+          Open Dice.empty;
+          Open Dice.empty;
+      ]
 
       let rec shuffle = function
             | [] -> []
-            | dice :: tail -> Dice.(shuffle dice) :: (shuffle tail)
+            | dice :: tail -> Fixable.update Dice.shuffle dice :: (shuffle tail)
 
       let toggle position hand =
             let rec go index = function
                   | [] -> []
-                  | dice :: tail when index = position -> Dice.(toggle dice) :: go (index + 1) tail
+                  | dice :: tail when index = position -> Fixable.update Dice.shuffle dice :: go (index + 1) tail
                   | dice :: tail -> dice :: go (index + 1) tail 
             in
             go 0 hand
 end
 
+module Opt = struct
+    let map fn = function
+        | None -> None
+        | Some a -> Some (fn a)
+end
+
 module Counter = struct
-      module Accumulator = Map.Make(Side)
+      module Accumulator = Map.Make(Dice)
+
+      let empty = Accumulator.(
+          empty
+          |> add Dice.Red 0
+          |> add Dice.Blue 0
+          |> add Dice.Green 0
+          |> add Dice.Yellow 0
+      )
+
+      let collect hand =
+          let rec go acc = function
+              | [] -> acc
+              | dice :: hand -> 
+                      let opt_incr = Opt.map ((+) 1) in
+                      let key = Fixable.extract dice in
+                      go (Accumulator.update key opt_incr acc) hand
+          in go empty hand
 end
 
