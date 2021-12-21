@@ -1,2 +1,6 @@
 _build/
 node_modules/
+lib/
+_esy/
+react/_esy/
+./**/*.bs.js

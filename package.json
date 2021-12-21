@@ -1,7 +1,7 @@
 {
   "name": "bs-dice",
   "version": "0.1.0",
-  "main": "index.js",
+  "main": "src/dice.bs.js",
   "scripts": {
       "clean": "bsb -clean-world",
       "build": "bsb -make-world",
@@ -14,10 +14,6 @@
   "devDependencies": {
       "bs-platform": "^9.0.0"
   },
-  "files": [
-      "src/main.ml",
-      "bsconfig.json"
-  ],
   "author": "MikeSkoe",
   "license": "ISC",
   "bugs": {
