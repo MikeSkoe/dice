@@ -1,0 +1,12 @@
+{
+    "name": "bs-dice",
+    "version": "0.1.0",
+    "sources": [
+        {
+            "dir": "src",
+            "subdirs": true
+        }
+    ],
+    "suffix": ".bs.js",
+    "refmt": 3
+}
