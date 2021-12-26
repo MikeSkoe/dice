@@ -1,0 +1,23 @@
+{
+  "name": "bs-dice",
+  "version": "0.1.0",
+  "main": "src/dice.bs.js",
+  "scripts": {
+      "clean": "bsb -clean-world",
+      "build": "bsb -make-world",
+      "watch": "bsb -make-world -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MikeSkoe/dice.git"
+  },
+  "devDependencies": {
+      "bs-platform": "^9.0.0"
+  },
+  "author": "MikeSkoe",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MikeSkoe/dice/issues"
+  },
+  "homepage": "https://github.com/MikeSkoe/dice#readme"
+}

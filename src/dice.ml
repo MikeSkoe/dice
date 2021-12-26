@@ -4,7 +4,7 @@ module type T = sig
     val empty: t
 end
 
-module Dice = struct
+module Side = struct
       type t = Red | Blue | Green | Yellow
 
       let length = 4
@@ -53,25 +53,25 @@ module Fixable = struct
 end
 
 module Hand = struct
-      type t = Dice.t Fixable.t list
+      type t = Side.t Fixable.t list
 
       let empty = Fixable.[
-          Open Dice.empty;
-          Open Dice.empty;
-          Open Dice.empty;
-          Open Dice.empty;
-          Open Dice.empty;
+          Open Side.empty;
+          Open Side.empty;
+          Open Side.empty;
+          Open Side.empty;
+          Open Side.empty;
       ]
 
       let rec shuffle = function
             | [] -> []
-            | dice :: tail -> Fixable.update Dice.shuffle dice :: (shuffle tail)
+            | side :: tail -> Fixable.update Side.shuffle side :: (shuffle tail)
 
       let toggle position hand =
             let rec go index = function
                   | [] -> []
-                  | dice :: tail when index = position -> Fixable.update Dice.shuffle dice :: go (index + 1) tail
-                  | dice :: tail -> dice :: go (index + 1) tail 
+                  | side :: tail when index = position -> Fixable.update Side.shuffle side :: go (index + 1) tail
+                  | side :: tail -> side :: go (index + 1) tail 
             in
             go 0 hand
 end
@@ -83,22 +83,22 @@ module Opt = struct
 end
 
 module Counter = struct
-      module Accumulator = Map.Make(Dice)
+      module Accumulator = Map.Make(Side)
 
       let empty = Accumulator.(
           empty
-          |> add Dice.Red 0
-          |> add Dice.Blue 0
-          |> add Dice.Green 0
-          |> add Dice.Yellow 0
+          |> add Side.Red 0
+          |> add Side.Blue 0
+          |> add Side.Green 0
+          |> add Side.Yellow 0
       )
 
       let collect hand =
           let rec go acc = function
               | [] -> acc
-              | dice :: hand -> 
+              | side :: hand -> 
                       let opt_incr = Opt.map ((+) 1) in
-                      let key = Fixable.extract dice in
+                      let key = Fixable.extract side in
                       go (Accumulator.update key opt_incr acc) hand
           in go empty hand
 end
